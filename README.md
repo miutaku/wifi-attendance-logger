@@ -19,7 +19,7 @@
 
 `wifi-attendance-logger` バイナリと同じディレクトリに配置してください。
 
-`config.sample.yaml` がサンプルであるので、config.ymlという名前でコピーして修正してください。
+`config.sample.yaml` がサンプルであるので、`config.yaml` という名前でコピーして修正してください。
 
 また、`./wifi-attendance-logger` するたびに `config.yaml` を読み込むため、設定変更後の対応などは不要です。
 
