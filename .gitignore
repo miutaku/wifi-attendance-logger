@@ -1,0 +1,9 @@
+# Added by goreleaser init:
+dist/
+
+# macOS
+.DS_Store
+
+# this repo setting
+config.yaml
+wifi-attendance-logger

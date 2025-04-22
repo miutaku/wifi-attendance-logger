@@ -1,0 +1,9 @@
+---
+entries:
+  - ssid: "OfficeWiFi"
+    place: "Tokyo HQ"
+  - ssid: "AnotherWiFi"
+    place: "Osaka Office"
+
+#post_insert_command:
+#  - "curl -X POST https://hogehoge-notify.com" # slackとかteamsに通知するなど

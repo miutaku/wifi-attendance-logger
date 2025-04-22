@@ -1,0 +1,40 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"  # 例: v1.0.0 のようなタグで発火
+
+permissions:
+  contents: write  # GitHub Release作成に必要
+  packages: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+
+      - name: Run Go Lint
+        run: go vet ./...
+
+      - name: Run Go Test
+        run: go test ./...
+
+      - name: Install dependencies
+        run: go mod tidy
+
+      - name: Set up Goreleaser
+        uses: goreleaser/goreleaser-action@v5
+        with:
+          version: latest
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
