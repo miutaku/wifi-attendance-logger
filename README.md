@@ -36,7 +36,7 @@
 
 ```bash
 ./wifi-attendance-logger
-2025/04/22 14:08:49 Attendance recorded for jitaku
+2025/04/22 14:08:49 Attendance recorded for 東京オフィス
 ```
 
 ## 出社履歴の確認
