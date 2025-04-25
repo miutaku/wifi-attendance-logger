@@ -1,5 +1,7 @@
 # wifi-attendance-logger
 
+[![Release](https://github.com/miutaku/wifi-attendance-logger/actions/workflows/release.yml/badge.svg)](https://github.com/miutaku/wifi-attendance-logger/actions/workflows/release.yml)
+
 会社のWiFi（SSID）に接続したことをトリガーに出社を記録し、SQLiteに1日1回だけ記録を残します。  
 出社回数をいちいち管理しなくても、このアプリケーションを定期実行させてやれば、自動で出社日数の集計ができます。
 
