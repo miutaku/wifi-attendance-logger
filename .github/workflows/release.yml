@@ -17,6 +17,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: install depend
+        run: apt install build-essential libsqlite3-dev
+
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
