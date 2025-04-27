@@ -98,6 +98,9 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y qemu-user-static binfmt-support wine64 unzip
 
+      - name: Go to repo root
+        run: cd ${{ github.workspace }}
+
       - name: Prepare Mock Commands
         run: |
           mkdir -p mockbin
