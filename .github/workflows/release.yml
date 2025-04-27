@@ -46,27 +46,21 @@ jobs:
 
           cp ../config.sample.yaml tmp/
 
-          # Linux amd64
           cp wifi-attendance-logger_linux_amd64 tmp/wifi-attendance-logger
           tar czvf ../upload/wifi-attendance-logger_linux_amd64_${VERSION}.tgz -C tmp wifi-attendance-logger config.sample.yaml
 
-          # Linux arm64
           cp wifi-attendance-logger_linux_arm64 tmp/wifi-attendance-logger
           tar czvf ../upload/wifi-attendance-logger_linux_arm64_${VERSION}.tgz -C tmp wifi-attendance-logger config.sample.yaml
 
-          # macOS amd64
           cp wifi-attendance-logger_macos_amd64 tmp/wifi-attendance-logger
           tar czvf ../upload/wifi-attendance-logger_macos_amd64_${VERSION}.tgz -C tmp wifi-attendance-logger config.sample.yaml
 
-          # macOS arm64
           cp wifi-attendance-logger_macos_arm64 tmp/wifi-attendance-logger
           tar czvf ../upload/wifi-attendance-logger_macos_arm64_${VERSION}.tgz -C tmp wifi-attendance-logger config.sample.yaml
 
-          # Windows amd64
           cp wifi-attendance-logger_windows_amd64.exe tmp/wifi-attendance-logger.exe
           zip -j ../upload/wifi-attendance-logger_windows_amd64_${VERSION}.zip tmp/wifi-attendance-logger.exe tmp/config.sample.yaml
 
-          # Windows arm64
           cp wifi-attendance-logger_windows_arm64.exe tmp/wifi-attendance-logger.exe
           zip -j ../upload/wifi-attendance-logger_windows_arm64_${VERSION}.zip tmp/wifi-attendance-logger.exe tmp/config.sample.yaml
 
@@ -81,7 +75,7 @@ jobs:
           name: release-artifacts
           path: upload/
 
-  test:
+  test-amd64:
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -96,66 +90,97 @@ jobs:
 
       - name: Install test dependencies
         run: |
-          sudo dpkg --add-architecture i386
           sudo apt-get update
-          sudo apt-get install -y qemu-user-static binfmt-support wine wine64 wine32 unzip
+          sudo apt-get install -y qemu-user-static binfmt-support wine unzip
 
       - name: Prepare Mock Commands
         run: |
           mkdir -p mockbin
-          # Build mock binaries
           GOOS=linux   GOARCH=amd64  go build -o mockbin/iwgetid test/getssid_mock.go
           GOOS=darwin  GOARCH=amd64  go build -o mockbin/ipconfig test/getssid_mock.go
-          GOOS=windows GOARCH=amd64  go build -o mockbin/netsh.exe test/getssid_mock.go
           chmod +x mockbin/*
+          sudo cp mockbin/iwgetid /usr/bin/
+          sudo cp mockbin/ipconfig /usr/bin/
 
       - name: Test Linux amd64 binary
         run: |
           tar xzvf upload/wifi-attendance-logger_linux_amd64_${VERSION}.tgz
           chmod +x wifi-attendance-logger
           cp test/config_test.yaml config.yaml
-          sudo cp mockbin/* /usr/bin/ && sudo chmod +x /usr/bin/*
           ./wifi-attendance-logger
           ls attendance.db
           cat post_insert_command.txt | grep "test"
           ./wifi-attendance-logger -check | grep Test_Office
-          rm wifi-attendance-logger config.yaml attendance.db post_insert_command.txt
 
-      - name: Test Linux arm64 binary (qemu)
+      - name: Test Windows amd64 binary
+        run: |
+          unzip -o upload/wifi-attendance-logger_windows_amd64_${VERSION}.zip
+          cp test/config_test.yaml config.yaml
+          wine ./wifi-attendance-logger.exe
+          ls attendance.db
+          wine ./wifi-attendance-logger.exe -check | grep Test_Office
+
+  test-arm64:
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        platform:
+          - linux/arm64
+    steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: release-artifacts
+          path: upload/
+
+      - name: Prepare environment
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-user-static binfmt-support unzip wget
+          sudo dpkg --add-architecture arm64
+          sudo mkdir -pm755 /etc/apt/keyrings
+          sudo wget -O /etc/apt/keyrings/winehq-archive.key https://dl.winehq.org/wine-builds/winehq.key
+          sudo wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/ubuntu/dists/jammy/winehq-jammy.sources
+          sudo apt-get update
+          sudo apt-get install --install-recommends -y winehq-stable
+
+      - name: Prepare Mock Commands
+        run: |
+          mkdir -p mockbin
+          GOOS=linux   GOARCH=arm64  go build -o mockbin/iwgetid test/getssid_mock.go
+          GOOS=darwin  GOARCH=arm64  go build -o mockbin/ipconfig test/getssid_mock.go
+          chmod +x mockbin/*
+          sudo cp mockbin/iwgetid /usr/bin/
+          sudo cp mockbin/ipconfig /usr/bin/
+
+      - name: Test Linux arm64 binary
         run: |
           tar xzvf upload/wifi-attendance-logger_linux_arm64_${VERSION}.tgz
           chmod +x wifi-attendance-logger
           cp test/config_test.yaml config.yaml
-          sudo cp mockbin/* /usr/bin/ && sudo chmod +x /usr/bin/*
           ./wifi-attendance-logger
           ls attendance.db
           cat post_insert_command.txt | grep "test"
           ./wifi-attendance-logger -check | grep Test_Office
-          rm wifi-attendance-logger config.yaml attendance.db post_insert_command.txt
 
-      - name: Test Windows amd64 binary (wine64)
-        run: |
-          unzip -o upload/wifi-attendance-logger_windows_amd64_${VERSION}.zip
-          cp test/config_test.yaml config.yaml
-          sudo cp mockbin/* /usr/bin/ && sudo chmod +x /usr/bin/*
-          wine ./wifi-attendance-logger.exe
-          ls attendance.db
-          wine ./wifi-attendance-logger.exe -check
-          rm wifi-attendance-logger.exe config.yaml attendance.db 
-
-      - name: Test Windows arm64 binary (wine64)
+      - name: Test Windows arm64 binary
         run: |
           unzip -o upload/wifi-attendance-logger_windows_arm64_${VERSION}.zip
           cp test/config_test.yaml config.yaml
-          sudo cp mockbin/* /usr/bin/ && sudo chmod +x /usr/bin/*
           wine ./wifi-attendance-logger.exe
           ls attendance.db
-          wine ./wifi-attendance-logger.exe -check
-          rm wifi-attendance-logger.exe config.yaml attendance.db 
+          wine ./wifi-attendance-logger.exe -check | grep Test_Office
 
   release:
     if: startsWith(github.ref, 'refs/tags/')
-    needs: [build, test]
+    needs: [build, test-amd64, test-arm64]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
