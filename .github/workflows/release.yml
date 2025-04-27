@@ -139,7 +139,7 @@ jobs:
           wine ./wifi-attendance-logger.exe
           ls attendance.db
           cat post_insert_command.txt | grep "test"
-          ./wifi-attendance-logger.exe -check | grep Test_Office
+          wine ./wifi-attendance-logger.exe -check | grep Test_Office
 
       - name: Test Windows arm64 binary (wine64)
         run: |
@@ -149,7 +149,7 @@ jobs:
           wine ./wifi-attendance-logger.exe
           ls attendance.db
           cat post_insert_command.txt | grep "test"
-          ./wifi-attendance-logger.exe -check | grep Test_Office
+          wine ./wifi-attendance-logger.exe -check | grep Test_Office
 
   release:
     if: startsWith(github.ref, 'refs/tags/')
