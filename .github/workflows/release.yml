@@ -1,4 +1,4 @@
-name: Build and Release (CGO-Free)
+name: Build, Test, and Release
 
 on:
   push:
@@ -28,12 +28,12 @@ jobs:
       - name: Build binaries
         run: |
           mkdir -p dist
-          GOOS=linux   GOARCH=amd64 go build -ldflags "-X main.Version=${VERSION}" -o dist/wifi-attendance-logger_linux_amd64
-          GOOS=linux   GOARCH=arm64 go build -ldflags "-X main.Version=${VERSION}" -o dist/wifi-attendance-logger_linux_arm64
-          GOOS=darwin  GOARCH=amd64 go build -ldflags "-X main.Version=${VERSION}" -o dist/wifi-attendance-logger_macos_amd64
-          GOOS=darwin  GOARCH=arm64 go build -ldflags "-X main.Version=${VERSION}" -o dist/wifi-attendance-logger_macos_arm64
-          GOOS=windows GOARCH=amd64 go build -ldflags "-X main.Version=${VERSION}" -o dist/wifi-attendance-logger_windows_amd64.exe
-          GOOS=windows GOARCH=arm64 go build -ldflags "-X main.Version=${VERSION}" -o dist/wifi-attendance-logger_windows_arm64.exe
+          GOOS=linux   GOARCH=amd64  go build -ldflags "-X main.Version=${VERSION}" -o dist/wifi-attendance-logger
+          GOOS=linux   GOARCH=arm64  go build -ldflags "-X main.Version=${VERSION}" -o dist/wifi-attendance-logger
+          GOOS=darwin  GOARCH=amd64  go build -ldflags "-X main.Version=${VERSION}" -o dist/wifi-attendance-logger
+          GOOS=darwin  GOARCH=arm64  go build -ldflags "-X main.Version=${VERSION}" -o dist/wifi-attendance-logger
+          GOOS=windows GOARCH=amd64  go build -ldflags "-X main.Version=${VERSION}" -o dist/wifi-attendance-logger.exe
+          GOOS=windows GOARCH=arm64  go build -ldflags "-X main.Version=${VERSION}" -o dist/wifi-attendance-logger.exe
 
       - name: Archive binaries
         run: |
@@ -42,12 +42,12 @@ jobs:
 
           cd dist
 
-          tar czvf ../upload/wifi-attendance-logger_linux_amd64_${VERSION}.tgz wifi-attendance-logger_linux_amd64 config.sample.yaml
-          tar czvf ../upload/wifi-attendance-logger_linux_arm64_${VERSION}.tgz wifi-attendance-logger_linux_arm64 config.sample.yaml
-          tar czvf ../upload/wifi-attendance-logger_macos_amd64_${VERSION}.tgz wifi-attendance-logger_macos_amd64 config.sample.yaml
-          tar czvf ../upload/wifi-attendance-logger_macos_arm64_${VERSION}.tgz wifi-attendance-logger_macos_arm64 config.sample.yaml
-          zip ../upload/wifi-attendance-logger_windows_amd64_${VERSION}.zip wifi-attendance-logger_windows_amd64.exe config.sample.yaml
-          zip ../upload/wifi-attendance-logger_windows_arm64_${VERSION}.zip wifi-attendance-logger_windows_arm64.exe config.sample.yaml
+          tar czvf ../upload/wifi-attendance-logger_linux_amd64_${VERSION}.tgz wifi-attendance-logger config.sample.yaml
+          tar czvf ../upload/wifi-attendance-logger_linux_arm64_${VERSION}.tgz wifi-attendance-logger config.sample.yaml
+          tar czvf ../upload/wifi-attendance-logger_macos_amd64_${VERSION}.tgz wifi-attendance-logger config.sample.yaml
+          tar czvf ../upload/wifi-attendance-logger_macos_arm64_${VERSION}.tgz wifi-attendance-logger config.sample.yaml
+          zip ../upload/wifi-attendance-logger_windows_amd64_${VERSION}.zip wifi-attendance-logger.exe config.sample.yaml
+          zip ../upload/wifi-attendance-logger_windows_arm64_${VERSION}.zip wifi-attendance-logger.exe config.sample.yaml
 
       - name: Generate checksums
         run: |
@@ -60,9 +60,41 @@ jobs:
           name: release-artifacts
           path: upload/
 
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: release-artifacts
+          path: upload/
+
+      - name: Install test dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-user-static binfmt-support wine
+
+      - name: Test Linux amd64 binary
+        run: |
+          tar xzvf upload/wifi-attendance-logger_linux_amd64_${VERSION}.tgz
+          chmod +x wifi-attendance-logger
+          ./wifi-attendance-logger -version
+
+      - name: Test Linux arm64 binary (qemu)
+        run: |
+          tar xzvf upload/wifi-attendance-logger_linux_arm64_${VERSION}.tgz
+          chmod +x wifi-attendance-logger
+          qemu-aarch64-static ./wifi-attendance-logger -version
+
+      - name: Test Windows amd64 binary (wine)
+        run: |
+          unzip upload/wifi-attendance-logger_windows_amd64_${VERSION}.zip
+          wine wifi-attendance-logger.exe -version
+
   release:
     if: startsWith(github.ref, 'refs/tags/')
-    needs: build
+    needs: [build, test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
