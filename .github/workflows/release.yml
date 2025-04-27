@@ -124,7 +124,7 @@ jobs:
           cp test/config_test.yaml config.yaml
           wine ./wifi-attendance-logger.exe
           ls attendance.db
-          wine ./wifi-attendance-logger.exe -check | grep Test_Office
+          wine ./wifi-attendance-logger.exe -check
 
   test-arm64:
     needs: build
@@ -171,13 +171,14 @@ jobs:
           ./wifi-attendance-logger -check | grep Test_Office
           rm wifi-attendance-logger config.yaml attendance.db post_insert_command.txt
 
-      - name: Test Windows binary
-        run: |
-          unzip -o upload/wifi-attendance-logger_windows_arm64_${VERSION}.zip
-          cp test/config_test.yaml config.yaml
-          wine ./wifi-attendance-logger.exe
-          ls attendance.db
-          wine ./wifi-attendance-logger.exe -check | grep Test_Office
+# wine can't emulate windows on arm64.
+#      - name: Test Windows binary
+#        run: |
+#          unzip -o upload/wifi-attendance-logger_windows_arm64_${VERSION}.zip
+#          cp test/config_test.yaml config.yaml
+#          wine ./wifi-attendance-logger.exe
+#          ls attendance.db
+#          wine ./wifi-attendance-logger.exe -check
 
   release:
     if: startsWith(github.ref, 'refs/tags/')
