@@ -11,9 +11,12 @@ import (
 	"strings"
 	"time"
 
+	"database/sql"
+
 	"gopkg.in/yaml.v3"
-	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
+	_ "modernc.org/sqlite"
 )
 
 var Version = "dev"
@@ -82,10 +85,21 @@ func getCurrentSSID() (string, error) {
 }
 
 func initDB() (*gorm.DB, error) {
-	db, err := gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
+	sqlDB, err := sql.Open("sqlite", dbPath)
 	if err != nil {
 		return nil, err
 	}
+
+	db, err := gorm.Open(
+		gorm.Dialector(&gorm.Config{
+			ConnPool: sqlDB,
+			Logger:   logger.Default.LogMode(logger.Silent),
+		}),
+	)
+	if err != nil {
+		return nil, err
+	}
+
 	err = db.AutoMigrate(&Attendance{})
 	return db, err
 }
