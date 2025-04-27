@@ -109,6 +109,7 @@ jobs:
           chmod +x wifi-attendance-logger
           PATH=./mockbin:$PATH ./wifi-attendance-logger
           ls attendance.db
+          cat post_insert_command.txt | grep "test"
           PATH=./mockbin:$PATH ./wifi-attendance-logger -check | grep -i "${MOCK_SSID}"
 
       - name: Test Linux arm64 binary (qemu)
@@ -117,6 +118,7 @@ jobs:
           chmod +x wifi-attendance-logger
           PATH=./mockbin:$PATH qemu-aarch64-static ./wifi-attendance-logger
           ls attendance.db
+          cat post_insert_command.txt | grep "test"
           PATH=./mockbin:$PATH qemu-aarch64-static ./wifi-attendance-logger -check | grep -i "${MOCK_SSID}"
 
       - name: Test Windows amd64 binary (wine)
@@ -124,6 +126,7 @@ jobs:
           unzip upload/wifi-attendance-logger_windows_amd64_${VERSION}.zip
           PATH=./mockbin:$PATH wine ./wifi-attendance-logger.exe
           ls attendance.db
+          cat post_insert_command.txt | grep "test"
           PATH=./mockbin:$PATH wine ./wifi-attendance-logger.exe -check | grep -i "${MOCK_SSID}"
 
       - name: Test Windows arm64 binary (wine64)
@@ -131,6 +134,7 @@ jobs:
           unzip upload/wifi-attendance-logger_windows_arm64_${VERSION}.zip
           PATH=./mockbin:$PATH wine64 ./wifi-attendance-logger.exe
           ls attendance.db
+          cat post_insert_command.txt | grep "test"
           PATH=./mockbin:$PATH wine64 ./wifi-attendance-logger.exe -check | grep -i "${MOCK_SSID}"
 
   release:
