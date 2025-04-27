@@ -36,32 +36,39 @@ jobs:
       - name: Build binaries with gox
         run: |
           mkdir -p dist
-          gox -osarch="linux/amd64 darwin/amd64 darwin/arm64 windows/amd64 windows/arm64" \
-              -output "dist/wifi-attendance-logger_{{.OS}}_{{.Arch}}" \
+          export CGO_ENABLED=1
+          gox -osarch="linux/amd64 linux/arm64 darwin/amd64 darwin/arm64 windows/amd64 windows/arm64" \
+              -output "dist/wifi-attendance-logger_{{.OS}}_{{.Arch}}_${VERSION}" \
               -ldflags "-X main.Version=${VERSION}"
-
+      
       - name: Archive binaries with config.sample.yaml
         run: |
           mkdir -p upload
-          
-          # Copy config.sample.yaml
+    
           cp config.sample.yaml dist/
 
-          # Linux
-          tar czvf upload/wifi-attendance-logger_linux_amd64.tgz -C dist wifi-attendance-logger_linux_amd64 config.sample.yaml
-
+          # Rename darwin binaries to macos
+          mv dist/wifi-attendance-logger_darwin_amd64_${VERSION} dist/wifi-attendance-logger_macos_amd64_${VERSION}
+          mv dist/wifi-attendance-logger_darwin_arm64_${VERSION} dist/wifi-attendance-logger_macos_arm64_${VERSION}
+    
+          # Linux amd64
+          tar czvf upload/wifi-attendance-logger_linux_amd64_${VERSION}.tgz -C dist wifi-attendance-logger_linux_amd64_${VERSION} config.sample.yaml
+    
+          # Linux arm64
+          tar czvf upload/wifi-attendance-logger_linux_arm64_${VERSION}.tgz -C dist wifi-attendance-logger_linux_arm64_${VERSION} config.sample.yaml
+    
           # macOS amd64
-          tar czvf upload/wifi-attendance-logger_macos_amd64.tgz -C dist wifi-attendance-logger_darwin_amd64 config.sample.yaml
-
+          tar czvf upload/wifi-attendance-logger_macos_amd64_${VERSION}.tgz -C dist wifi-attendance-logger_macos_amd64_${VERSION} config.sample.yaml
+    
           # macOS arm64
-          tar czvf upload/wifi-attendance-logger_macos_arm64.tgz -C dist wifi-attendance-logger_darwin_arm64 config.sample.yaml
-
+          tar czvf upload/wifi-attendance-logger_macos_arm64_${VERSION}.tgz -C dist wifi-attendance-logger_macos_arm64_${VERSION} config.sample.yaml
+    
           # Windows amd64
-          zip upload/wifi-attendance-logger_windows_amd64.zip dist/wifi-attendance-logger_windows_amd64.exe dist/config.sample.yaml
-
+          zip upload/wifi-attendance-logger_windows_amd64_${VERSION}.zip dist/wifi-attendance-logger_windows_amd64_${VERSION}.exe dist/config.sample.yaml
+    
           # Windows arm64
-          zip upload/wifi-attendance-logger_windows_arm64.zip dist/wifi-attendance-logger_windows_arm64.exe dist/config.sample.yaml
-
+          zip upload/wifi-attendance-logger_windows_arm64_${VERSION}.zip dist/wifi-attendance-logger_windows_arm64_${VERSION}.exe dist/config.sample.yaml
+            
       - name: Generate SHA256 checksums
         run: |
           cd upload
