@@ -38,36 +38,37 @@ jobs:
 
       - name: Archive binaries
         run: |
-          mkdir -p upload
-          cp config.sample.yaml dist/
-
-          cd dist
-
           mkdir -p tmp
-
+                  
           # Linux amd64
           cp wifi-attendance-logger_linux_amd64 tmp/wifi-attendance-logger
+          cp ../config.sample.yaml tmp/
           tar czvf ../upload/wifi-attendance-logger_linux_amd64_${VERSION}.tgz -C tmp wifi-attendance-logger config.sample.yaml
-
+                  
           # Linux arm64
           cp wifi-attendance-logger_linux_arm64 tmp/wifi-attendance-logger
+          cp ../config.sample.yaml tmp/
           tar czvf ../upload/wifi-attendance-logger_linux_arm64_${VERSION}.tgz -C tmp wifi-attendance-logger config.sample.yaml
-
+                  
           # macOS amd64
           cp wifi-attendance-logger_macos_amd64 tmp/wifi-attendance-logger
+          cp ../config.sample.yaml tmp/
           tar czvf ../upload/wifi-attendance-logger_macos_amd64_${VERSION}.tgz -C tmp wifi-attendance-logger config.sample.yaml
-
+                  
           # macOS arm64
           cp wifi-attendance-logger_macos_arm64 tmp/wifi-attendance-logger
+          cp ../config.sample.yaml tmp/
           tar czvf ../upload/wifi-attendance-logger_macos_arm64_${VERSION}.tgz -C tmp wifi-attendance-logger config.sample.yaml
-
+                  
           # Windows amd64
           cp wifi-attendance-logger_windows_amd64.exe tmp/wifi-attendance-logger.exe
-          zip -j ../upload/wifi-attendance-logger_windows_amd64_${VERSION}.zip tmp/wifi-attendance-logger.exe config.sample.yaml
-
+          cp ../config.sample.yaml tmp/
+          zip -j ../upload/wifi-attendance-logger_windows_amd64_${VERSION}.zip tmp/wifi-attendance-logger.exe tmp/config.sample.yaml
+                  
           # Windows arm64
           cp wifi-attendance-logger_windows_arm64.exe tmp/wifi-attendance-logger.exe
-          zip -j ../upload/wifi-attendance-logger_windows_arm64_${VERSION}.zip tmp/wifi-attendance-logger.exe config.sample.yaml
+          cp ../config.sample.yaml tmp/
+          zip -j ../upload/wifi-attendance-logger_windows_arm64_${VERSION}.zip tmp/wifi-attendance-logger.exe tmp/config.sample.yaml
 
       - name: Generate checksums
         run: |
@@ -126,7 +127,7 @@ jobs:
           
               ホストされたネットワークの状態: 未開始
           EOT
-          EOF
+          EOF # for windows
           chmod +x mockbin/*
 
       - name: Test Linux amd64 binary
