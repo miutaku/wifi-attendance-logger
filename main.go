@@ -16,6 +16,8 @@ import (
 	"gorm.io/gorm"
 )
 
+var Version = "dev"
+
 type Config struct {
 	Entries []struct {
 		SSID  string `yaml:"ssid"`
@@ -150,7 +152,13 @@ func checkThisMonth(db *gorm.DB) error {
 
 func main() {
 	checkFlag := flag.Bool("check", false, "今月の出社記録を確認する")
+	versionFlag := flag.Bool("version", false, "バージョンを表示する")
 	flag.Parse()
+
+	if *versionFlag {
+		fmt.Println("wifi-attendance-logger version:", Version)
+		return
+	}
 
 	db, err := initDB()
 	if err != nil {
