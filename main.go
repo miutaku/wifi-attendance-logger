@@ -1,7 +1,6 @@
 package main
 
 import (
-	"database/sql"
 	"errors"
 	"flag"
 	"fmt"
@@ -13,9 +12,10 @@ import (
 	"time"
 
 	"gopkg.in/yaml.v3"
+	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
-	_ "modernc.org/sqlite"
+
+	_ "modernc.org/sqlite" // ← 必ず_importするだけ！
 )
 
 var Version = "dev"
@@ -84,17 +84,10 @@ func getCurrentSSID() (string, error) {
 }
 
 func initDB() (*gorm.DB, error) {
-	sqlDB, err := sql.Open("sqlite", dbPath) // <- modernc driver名は"sqlite"
-	if err != nil {
-		return nil, err
-	}
+	// DSN形式にする（オプションもここで指定可能）
+	dsn := dbPath + "?_pragma=foreign_keys(1)"
 
-	db, err := gorm.Open(
-		gorm.Dialector(&gorm.Config{
-			ConnPool: sqlDB,
-			Logger:   logger.Default.LogMode(logger.Silent),
-		}),
-	)
+	db, err := gorm.Open(sqlite.Open(dsn), &gorm.Config{})
 	if err != nil {
 		return nil, err
 	}
