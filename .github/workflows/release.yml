@@ -31,7 +31,7 @@ jobs:
           sudo apt-get install -y build-essential zip libsqlite3-dev
 
       - name: Install gox
-        run: github.com/authelia/gox@latest
+        run: go install github.com/authelia/gox@latest
 
       - name: Build binaries with gox
         run: |
