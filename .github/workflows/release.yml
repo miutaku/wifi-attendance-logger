@@ -130,12 +130,12 @@ jobs:
           cat post_insert_command.txt | grep "test"
           ./wifi-attendance-logger -check | grep Test_Office
 
-      - name: Test Windows amd64 binary (wine)
+      - name: Test Windows amd64 binary (wine64)
         run: |
           unzip -o upload/wifi-attendance-logger_windows_amd64_${VERSION}.zip
           cp test/config_test.yaml config.yaml
           sudo cp mockbin/* /usr/bin/ && sudo chmod +x /usr/bin/*
-          wine ./wifi-attendance-logger.exe
+          wine64 ./wifi-attendance-logger.exe
           ls attendance.db
           cat post_insert_command.txt | grep "test"
           ./wifi-attendance-logger.exe -check | grep Test_Office
