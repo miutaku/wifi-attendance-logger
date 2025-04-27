@@ -12,6 +12,7 @@ permissions:
 
 env:
   VERSION: ${{ github.ref_name }}
+  MOCK_SSID: TEST_SSID
 
 jobs:
   build:
@@ -73,24 +74,71 @@ jobs:
       - name: Install test dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y qemu-user-static binfmt-support wine
+          sudo apt-get install -y qemu-user-static binfmt-support wine64 unzip
+
+      - name: Prepare Mock Commands
+        run: |
+          mkdir -p mockbin
+
+          echo -e '#!/bin/sh\necho "${MOCK_SSID}"' > mockbin/iwgetid # for linux
+          echo -e '#!/bin/sh\necho "${MOCK_SSID}"' > mockbin/ipconfig # for darwin
+          cat <<EOF > mockbin/netsh
+          #!/bin/sh
+          cat <<EOT
+          システムに 1 インターフェイスがあります:
+          
+              名前                   : Wi-Fi
+              説明                   : HogeFuga Wireless LAN Adapter
+              GUID                   : xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxxx
+              物理アドレス           : xx:xx:xx:xx:xx:xx
+              状態                   : 接続されました
+              SSID                   : ${MOCK_SSID}
+              BSSID                  : xx:xx:xx:xx:xx:xx
+              ネットワークの種類     : インフラストラクチャ
+              無線の種類             : 802.11n
+              認証                   : WPA2-パーソナル
+              暗号                   : CCMP
+              接続モード             : プロファイル
+              チャネル               : 1
+              受信速度 (Mbps)        : 200
+              送信速度 (Mbps)        : 100
+              シグナル               : 100%
+              プロファイル           : test_profile
+          
+              ホストされたネットワークの状態: 未開始
+          EOT
+          EOF # for windows
+          chmod +x mockbin/*
 
       - name: Test Linux amd64 binary
         run: |
           tar xzvf upload/wifi-attendance-logger_linux_amd64_${VERSION}.tgz
           chmod +x wifi-attendance-logger
-          ./wifi-attendance-logger -version
+          PATH=./mockbin:$PATH ./wifi-attendance-logger
+          ls attendance.db
+          PATH=./mockbin:$PATH ./wifi-attendance-logger -check | grep -i "${MOCK_SSID}"
 
       - name: Test Linux arm64 binary (qemu)
         run: |
           tar xzvf upload/wifi-attendance-logger_linux_arm64_${VERSION}.tgz
           chmod +x wifi-attendance-logger
-          qemu-aarch64-static ./wifi-attendance-logger -version
+          PATH=./mockbin:$PATH qemu-aarch64-static ./wifi-attendance-logger
+          ls attendance.db
+          PATH=./mockbin:$PATH qemu-aarch64-static ./wifi-attendance-logger -check | grep -i "${MOCK_SSID}"
 
       - name: Test Windows amd64 binary (wine)
         run: |
           unzip upload/wifi-attendance-logger_windows_amd64_${VERSION}.zip
-          wine wifi-attendance-logger.exe -version
+          PATH=./mockbin:$PATH wine ./wifi-attendance-logger.exe
+          ls attendance.db
+          PATH=./mockbin:$PATH wine ./wifi-attendance-logger.exe -check | grep -i "${MOCK_SSID}"
+
+      - name: Test Windows arm64 binary (wine64)
+        run: |
+          unzip upload/wifi-attendance-logger_windows_arm64_${VERSION}.zip
+          PATH=./mockbin:$PATH wine64 ./wifi-attendance-logger.exe
+          ls attendance.db
+          PATH=./mockbin:$PATH wine64 ./wifi-attendance-logger.exe -check | grep -i "${MOCK_SSID}"
 
   release:
     if: startsWith(github.ref, 'refs/tags/')
