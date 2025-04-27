@@ -1,7 +1,7 @@
 ---
 entries:
   - ssid: "TEST_SSID"
-    place: "Test Office"
+    place: "Test_Office"
 
 post_insert_command:
   - "echo test > post_insert_command.txt"

@@ -117,7 +117,7 @@ jobs:
           ./wifi-attendance-logger
           ls attendance.db
           cat post_insert_command.txt | grep "test"
-          ./wifi-attendance-logger -check | grep TEST_SSID
+          ./wifi-attendance-logger -check | grep Test_Office
 
       - name: Test Linux arm64 binary (qemu)
         run: |
@@ -128,7 +128,7 @@ jobs:
           ./wifi-attendance-logger
           ls attendance.db
           cat post_insert_command.txt | grep "test"
-          ./wifi-attendance-logger -check | grep TEST_SSID
+          ./wifi-attendance-logger -check | grep Test_Office
 
       - name: Test Windows amd64 binary (wine)
         run: |
@@ -138,7 +138,7 @@ jobs:
           wine ./wifi-attendance-logger.exe
           ls attendance.db
           cat post_insert_command.txt | grep "test"
-          ./wifi-attendance-logger.exe -check | grep TEST_SSID
+          ./wifi-attendance-logger.exe -check | grep Test_Office
 
       - name: Test Windows arm64 binary (wine64)
         run: |
@@ -148,7 +148,7 @@ jobs:
           wine64 ./wifi-attendance-logger.exe
           ls attendance.db
           cat post_insert_command.txt | grep "test"
-          ./wifi-attendance-logger.exe -check | grep TEST_SSID
+          ./wifi-attendance-logger.exe -check | grep Test_Office
 
   release:
     if: startsWith(github.ref, 'refs/tags/')
