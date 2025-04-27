@@ -34,11 +34,12 @@ jobs:
       - name: Run goreleaser-cross to build binaries
         run: |
           docker run --rm \
+            -e CGO_ENABLED=1 \
             -v ${{ github.workspace }}:/work \
             -w /work \
             goreleaser/goreleaser-cross:v1.24 \
-            /bin/bash -c "
-              mkdir -p dist
+            sh -c "
+              mkdir -p dist &&
               gox -cgo \
                 -osarch='linux/amd64 linux/arm64 darwin/amd64 darwin/arm64 windows/amd64 windows/arm64' \
                 -output 'dist/wifi-attendance-logger_{{.OS}}_{{.Arch}}_${VERSION}' \
