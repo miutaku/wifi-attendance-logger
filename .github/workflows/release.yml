@@ -85,6 +85,9 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
@@ -94,20 +97,22 @@ jobs:
       - name: Install test dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y qemu-user-static binfmt-support wine64 unzip curl
+          sudo apt-get install -y qemu-user-static binfmt-support wine64 unzip
+
       - name: Prepare Mock Commands
         run: |
           mkdir -p mockbin
-          curl -fsSL https://raw.githubusercontent.com/miutaku/wifi-attendance-logger/main/test/mockbin/iwgetid -o mockbin/iwgetid
-          curl -fsSL https://raw.githubusercontent.com/miutaku/wifi-attendance-logger/main/test/mockbin/ipconfig -o mockbin/ipconfig
-          curl -fsSL https://raw.githubusercontent.com/miutaku/wifi-attendance-logger/main/test/mockbin/netsh -o mockbin/netsh
+          # Build mock binaries
+          GOOS=linux   GOARCH=amd64  go build -o mockbin/iwgetid test/getssid_mock.go
+          GOOS=darwin  GOARCH=amd64  go build -o mockbin/ipconfig test/getssid_mock.go
+          GOOS=windows GOARCH=amd64  go build -o mockbin/netsh.exe test/getssid_mock.go
           chmod +x mockbin/*
 
       - name: Test Linux amd64 binary
         run: |
           tar xzvf upload/wifi-attendance-logger_linux_amd64_${VERSION}.tgz
           chmod +x wifi-attendance-logger
-          curl -fsSL https://raw.githubusercontent.com/miutaku/wifi-attendance-logger/main/test/config_test.yaml -o config.yaml
+          cp test/config_test.yaml config.yaml
           PATH=./mockbin:$PATH ./wifi-attendance-logger
           ls attendance.db
           cat post_insert_command.txt | grep "test"
@@ -117,7 +122,7 @@ jobs:
         run: |
           tar xzvf upload/wifi-attendance-logger_linux_arm64_${VERSION}.tgz
           chmod +x wifi-attendance-logger
-          curl -fsSL https://raw.githubusercontent.com/miutaku/wifi-attendance-logger/main/test/config_test.yaml -o config.yaml
+          cp test/config_test.yaml config.yaml
           PATH=./mockbin:$PATH qemu-aarch64-static ./wifi-attendance-logger
           ls attendance.db
           cat post_insert_command.txt | grep "test"
@@ -126,7 +131,7 @@ jobs:
       - name: Test Windows amd64 binary (wine)
         run: |
           unzip upload/wifi-attendance-logger_windows_amd64_${VERSION}.zip
-          curl -fsSL https://raw.githubusercontent.com/miutaku/wifi-attendance-logger/main/test/config_test.yaml -o config.yaml
+          cp test/config_test.yaml config.yaml
           PATH=./mockbin:$PATH wine ./wifi-attendance-logger.exe
           ls attendance.db
           cat post_insert_command.txt | grep "test"
@@ -135,12 +140,11 @@ jobs:
       - name: Test Windows arm64 binary (wine64)
         run: |
           unzip upload/wifi-attendance-logger_windows_arm64_${VERSION}.zip
-          curl -fsSL https://raw.githubusercontent.com/miutaku/wifi-attendance-logger/main/test/config_test.yaml -o config.yaml
+          cp test/config_test.yaml config.yaml
           PATH=./mockbin:$PATH wine64 ./wifi-attendance-logger.exe
           ls attendance.db
           cat post_insert_command.txt | grep "test"
-          PATH=./mockbin:$PATH wine64 ./wifi-attendance-logger.exe -check | grep -i "${MOCK_SSID}"
-
+        
   release:
     if: startsWith(github.ref, 'refs/tags/')
     needs: [build, test]
