@@ -115,6 +115,7 @@ jobs:
           ls attendance.db
           cat post_insert_command.txt | grep "test"
           ./wifi-attendance-logger -check | grep Test_Office
+          rm wifi-attendance-logger config.yaml attendance.db post_insert_command.txt
 
       - name: Test Windows binary
         run: |
@@ -146,14 +147,14 @@ jobs:
 
       - name: Prepare environment
         run: |
-          sudo apt-get update
-          sudo apt-get install -y qemu-user-static binfmt-support unzip wget
+          sudo apt update
+          sudo apt install -y qemu-user-static binfmt-support unzip wget
           sudo dpkg --add-architecture arm64
           sudo mkdir -pm755 /etc/apt/keyrings
-          sudo wget -O /etc/apt/keyrings/winehq-archive.key https://dl.winehq.org/wine-builds/winehq.key
-          sudo wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/ubuntu/dists/jammy/winehq-jammy.sources
-          sudo apt-get update
-          sudo apt-get install --install-recommends -y winehq-stable
+          wget -O - https://dl.winehq.org/wine-builds/winehq.key | sudo gpg --dearmor -o /etc/apt/keyrings/winehq-archive.key -
+          sudo wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/ubuntu/dists/noble/winehq-noble.sources
+          sudo apt update
+          sudo apt install -y wine
 
       - name: Prepare Mock Commands
         run: |
@@ -173,6 +174,7 @@ jobs:
           ls attendance.db
           cat post_insert_command.txt | grep "test"
           ./wifi-attendance-logger -check | grep Test_Office
+          rm wifi-attendance-logger config.yaml attendance.db post_insert_command.txt
 
       - name: Test Windows binary
         run: |
