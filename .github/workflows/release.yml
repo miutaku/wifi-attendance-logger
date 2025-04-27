@@ -38,36 +38,36 @@ jobs:
 
       - name: Archive binaries
         run: |
+          mkdir -p upload
+
+          cd dist
+
           mkdir -p tmp
-                  
+
+          cp ../config.sample.yaml tmp/
+
           # Linux amd64
           cp wifi-attendance-logger_linux_amd64 tmp/wifi-attendance-logger
-          cp ../config.sample.yaml tmp/
           tar czvf ../upload/wifi-attendance-logger_linux_amd64_${VERSION}.tgz -C tmp wifi-attendance-logger config.sample.yaml
-                  
+
           # Linux arm64
           cp wifi-attendance-logger_linux_arm64 tmp/wifi-attendance-logger
-          cp ../config.sample.yaml tmp/
           tar czvf ../upload/wifi-attendance-logger_linux_arm64_${VERSION}.tgz -C tmp wifi-attendance-logger config.sample.yaml
-                  
+
           # macOS amd64
           cp wifi-attendance-logger_macos_amd64 tmp/wifi-attendance-logger
-          cp ../config.sample.yaml tmp/
           tar czvf ../upload/wifi-attendance-logger_macos_amd64_${VERSION}.tgz -C tmp wifi-attendance-logger config.sample.yaml
-                  
+
           # macOS arm64
           cp wifi-attendance-logger_macos_arm64 tmp/wifi-attendance-logger
-          cp ../config.sample.yaml tmp/
           tar czvf ../upload/wifi-attendance-logger_macos_arm64_${VERSION}.tgz -C tmp wifi-attendance-logger config.sample.yaml
-                  
+
           # Windows amd64
           cp wifi-attendance-logger_windows_amd64.exe tmp/wifi-attendance-logger.exe
-          cp ../config.sample.yaml tmp/
           zip -j ../upload/wifi-attendance-logger_windows_amd64_${VERSION}.zip tmp/wifi-attendance-logger.exe tmp/config.sample.yaml
-                  
+
           # Windows arm64
           cp wifi-attendance-logger_windows_arm64.exe tmp/wifi-attendance-logger.exe
-          cp ../config.sample.yaml tmp/
           zip -j ../upload/wifi-attendance-logger_windows_arm64_${VERSION}.zip tmp/wifi-attendance-logger.exe tmp/config.sample.yaml
 
       - name: Generate checksums
@@ -99,35 +99,7 @@ jobs:
       - name: Prepare Mock Commands
         run: |
           mkdir -p mockbin
-
-          echo -e '#!/bin/sh\necho "${MOCK_SSID}"' > mockbin/iwgetid # for linux
-          echo -e '#!/bin/sh\necho "${MOCK_SSID}"' > mockbin/ipconfig # for darwin
-          cat <<EOF > mockbin/netsh
-          #!/bin/sh
-          cat <<EOT
-          システムに 1 インターフェイスがあります:
-          
-              名前                   : Wi-Fi
-              説明                   : HogeFuga Wireless LAN Adapter
-              GUID                   : xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxxx
-              物理アドレス           : xx:xx:xx:xx:xx:xx
-              状態                   : 接続されました
-              SSID                   : ${MOCK_SSID}
-              BSSID                  : xx:xx:xx:xx:xx:xx
-              ネットワークの種類     : インフラストラクチャ
-              無線の種類             : 802.11n
-              認証                   : WPA2-パーソナル
-              暗号                   : CCMP
-              接続モード             : プロファイル
-              チャネル               : 1
-              受信速度 (Mbps)        : 200
-              送信速度 (Mbps)        : 100
-              シグナル               : 100%
-              プロファイル           : test_profile
-          
-              ホストされたネットワークの状態: 未開始
-          EOT
-          EOF # for windows
+          cp test/mockbin/* mockbin/
           chmod +x mockbin/*
 
       - name: Test Linux amd64 binary
