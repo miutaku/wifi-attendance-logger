@@ -40,11 +40,23 @@ const (
 func loadConfig() (*Config, error) {
 	data, err := os.ReadFile(configPath)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to read config: %w", err)
 	}
 	var cfg Config
-	err = yaml.Unmarshal(data, &cfg)
-	return &cfg, err
+	if err := yaml.Unmarshal(data, &cfg); err != nil {
+		return nil, fmt.Errorf("failed to parse config: %w", err)
+	}
+
+	for i, entry := range cfg.Entries {
+		if strings.TrimSpace(entry.SSID) == "" {
+			return nil, fmt.Errorf("invalid config: entry %d has empty SSID (フィールド名などが正しいか確認してください)", i)
+		}
+		if strings.TrimSpace(entry.Place) == "" {
+			return nil, fmt.Errorf("invalid config: entry %d has empty Place (フィールド名などが正しいか確認してください)", i)
+		}
+	}
+
+	return &cfg, nil
 }
 
 func getCurrentSSID() (string, error) {
