@@ -141,7 +141,7 @@ jobs:
           wine ./wifi-attendance-logger.exe
           ls attendance.db
           wine ./wifi-attendance-logger.exe -check
-          rm wifi-attendance-logger.exe config.yaml attendance.db post_insert_command.txt
+          rm wifi-attendance-logger.exe config.yaml attendance.db 
 
       - name: Test Windows arm64 binary (wine64)
         run: |
@@ -151,7 +151,7 @@ jobs:
           wine ./wifi-attendance-logger.exe
           ls attendance.db
           wine ./wifi-attendance-logger.exe -check
-          rm wifi-attendance-logger.exe config.yaml attendance.db post_insert_command.txt
+          rm wifi-attendance-logger.exe config.yaml attendance.db 
 
   release:
     if: startsWith(github.ref, 'refs/tags/')
