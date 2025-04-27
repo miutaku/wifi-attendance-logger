@@ -1,5 +1,4 @@
 version: 1
-
 project_name: wifi-attendance-logger
 
 before:
@@ -17,6 +16,9 @@ builds:
       - arm64
     ldflags:
       - -s -w
+    # クロスコンパイル用Dockerイメージを指定
+    docker_images:
+      - goreleaser/goreleaser-cross:latest
 
 archives:
   - name_template: "{{ .Binary }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
