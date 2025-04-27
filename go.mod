@@ -6,6 +6,7 @@ require (
 	gopkg.in/yaml.v3 v3.0.1
 	gorm.io/gorm v1.25.12
 	modernc.org/sqlite v1.37.0
+	gorm.io/driver/sqlite v1.5.7
 )
 
 require (
@@ -22,7 +23,6 @@ require (
 	golang.org/x/sys v0.31.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
-	gorm.io/driver/sqlite v1.5.7 // indirect
 	modernc.org/libc v1.62.1 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.9.1 // indirect
