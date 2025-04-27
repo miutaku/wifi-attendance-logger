@@ -148,13 +148,7 @@ jobs:
       - name: Prepare environment
         run: |
           sudo apt update
-          sudo apt install -y qemu-user-static binfmt-support unzip wget
-          sudo dpkg --add-architecture arm64
-          sudo mkdir -pm755 /etc/apt/keyrings
-          wget -O - https://dl.winehq.org/wine-builds/winehq.key | sudo gpg --dearmor -o /etc/apt/keyrings/winehq-archive.key -
-          sudo wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/ubuntu/dists/noble/winehq-noble.sources
-          sudo apt update
-          sudo apt install -y wine
+          sudo apt-get install -y qemu-user-static binfmt-support wine unzip
 
       - name: Prepare Mock Commands
         run: |
