@@ -36,8 +36,8 @@ jobs:
       - name: Build binaries with gox
         run: |
           mkdir -p dist
-          export CGO_ENABLED=1
-          gox -osarch="linux/amd64 linux/arm64 darwin/amd64 darwin/arm64 windows/amd64 windows/arm64" \
+          gox -cgo \
+              -osarch="linux/amd64 linux/arm64 darwin/amd64 darwin/arm64 windows/amd64 windows/arm64" \
               -output "dist/wifi-attendance-logger_{{.OS}}_{{.Arch}}_${VERSION}" \
               -ldflags "-X main.Version=${VERSION}"
       
