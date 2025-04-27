@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/glebarez/sqlite" // ← pure-Go SQLite／GORM用ドライバ
+	"github.com/glebarez/sqlite"
 	"gopkg.in/yaml.v3"
 	"gorm.io/gorm"
 )
@@ -23,7 +23,7 @@ type Config struct {
 		SSID  string `yaml:"ssid"`
 		Place string `yaml:"place"`
 	} `yaml:"entries"`
-	OnAttendanceCommands []string `yaml:"on_attendance_commands"`
+	PostInsertCommands []string `yaml:"post_insert_command"`
 }
 
 type Attendance struct {
@@ -49,10 +49,16 @@ func loadConfig() (*Config, error) {
 
 	for i, entry := range cfg.Entries {
 		if strings.TrimSpace(entry.SSID) == "" {
-			return nil, fmt.Errorf("invalid config: entry %d has empty SSID (フィールド名などが正しいか確認してください)", i)
+			return nil, fmt.Errorf("invalid config: entry %d has empty SSID", i)
 		}
 		if strings.TrimSpace(entry.Place) == "" {
-			return nil, fmt.Errorf("invalid config: entry %d has empty Place (フィールド名などが正しいか確認してください)", i)
+			return nil, fmt.Errorf("invalid config: entry %d has empty Place (フィールド名が正しいか確認してください)", i)
+		}
+	}
+
+	for i, cmd := range cfg.PostInsertCommands {
+		if strings.TrimSpace(cmd) == "" {
+			return nil, fmt.Errorf("invalid config: post_insert_command entry %d is empty", i)
 		}
 	}
 
@@ -95,7 +101,6 @@ func getCurrentSSID() (string, error) {
 }
 
 func initDB() (*gorm.DB, error) {
-	// pure-Go driver をそのまま Dialector として渡すだけ
 	db, err := gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
 	if err != nil {
 		return nil, err
@@ -122,16 +127,15 @@ func insertAttendance(db *gorm.DB, place string) (bool, error) {
 	return true, nil
 }
 
-func runAttendanceCommands(cmds []string) {
-	for _, c := range cmds {
+func runAttendanceCommands(commands []string) {
+	for _, c := range commands {
+		c = strings.TrimSpace(c)
 		if c == "" {
 			continue
 		}
-		parts := strings.Fields(c)
-		if len(parts) == 0 {
-			continue
-		}
-		if err := exec.Command(parts[0], parts[1:]...).Start(); err != nil {
+		cmd := exec.Command("sh", "-c", c)
+		err := cmd.Start()
+		if err != nil {
 			log.Println("Failed to start attendance command:", err)
 		} else {
 			log.Println("Attendance command executed:", c)
@@ -190,7 +194,7 @@ func main() {
 				log.Println("Insert error:", err)
 			} else if ok {
 				log.Println("Attendance recorded for", e.Place)
-				runAttendanceCommands(cfg.OnAttendanceCommands)
+				runAttendanceCommands(cfg.PostInsertCommands)
 			} else {
 				log.Println("Already recorded for today")
 			}
