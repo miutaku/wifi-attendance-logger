@@ -114,7 +114,8 @@ jobs:
           chmod +x wifi-attendance-logger
           cp test/config_test.yaml config.yaml
           cp mockbin/* .
-          PATH=./mockbin:$PATH ./wifi-attendance-logger
+          export PATH=./mockbin:$PATH
+          ./wifi-attendance-logger
           ls attendance.db
           cat post_insert_command.txt | grep "test"
           PATH=./mockbin:$PATH ./wifi-attendance-logger -check | grep -i "${MOCK_SSID}"
@@ -125,7 +126,8 @@ jobs:
           chmod +x wifi-attendance-logger
           cp test/config_test.yaml config.yaml
           cp mockbin/* .
-          PATH=./mockbin:$PATH qemu-aarch64-static ./wifi-attendance-logger
+          export PATH=./mockbin:$PATH
+          ./wifi-attendance-logger
           ls attendance.db
           cat post_insert_command.txt | grep "test"
           PATH=./mockbin:$PATH qemu-aarch64-static ./wifi-attendance-logger -check | grep -i "${MOCK_SSID}"
@@ -135,7 +137,8 @@ jobs:
           unzip upload/wifi-attendance-logger_windows_amd64_${VERSION}.zip
           cp test/config_test.yaml config.yaml
           cp mockbin/* .
-          PATH=./mockbin:$PATH wine ./wifi-attendance-logger.exe
+          export PATH=./mockbin:$PATH
+          wine ./wifi-attendance-logger.exe
           ls attendance.db
           cat post_insert_command.txt | grep "test"
           PATH=./mockbin:$PATH wine ./wifi-attendance-logger.exe -check | grep -i "${MOCK_SSID}"
@@ -145,7 +148,8 @@ jobs:
           unzip upload/wifi-attendance-logger_windows_arm64_${VERSION}.zip
           cp test/config_test.yaml config.yaml
           cp mockbin/* .
-          PATH=./mockbin:$PATH wine64 ./wifi-attendance-logger.exe
+          export PATH=./mockbin:$PATH
+          wine64 ./wifi-attendance-logger.exe
           ls attendance.db
           cat post_insert_command.txt | grep "test"
         
