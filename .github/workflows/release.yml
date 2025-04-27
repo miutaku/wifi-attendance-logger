@@ -113,8 +113,7 @@ jobs:
           tar xzvf upload/wifi-attendance-logger_linux_amd64_${VERSION}.tgz
           chmod +x wifi-attendance-logger
           cp test/config_test.yaml config.yaml
-          cp mockbin/* .
-          export PATH=./mockbin:$PATH
+          sudo cp mockbin/* /usr/bin/ && sudo chmod +x /usr/bin/*
           ./wifi-attendance-logger
           ls attendance.db
           cat post_insert_command.txt | grep "test"
@@ -125,8 +124,7 @@ jobs:
           tar xzvf upload/wifi-attendance-logger_linux_arm64_${VERSION}.tgz
           chmod +x wifi-attendance-logger
           cp test/config_test.yaml config.yaml
-          cp mockbin/* .
-          export PATH=./mockbin:$PATH
+          sudo cp mockbin/* /usr/bin/ && sudo chmod +x /usr/bin/*
           ./wifi-attendance-logger
           ls attendance.db
           cat post_insert_command.txt | grep "test"
@@ -136,8 +134,7 @@ jobs:
         run: |
           unzip upload/wifi-attendance-logger_windows_amd64_${VERSION}.zip
           cp test/config_test.yaml config.yaml
-          cp mockbin/* .
-          export PATH=./mockbin:$PATH
+          sudo cp mockbin/* /usr/bin/ && sudo chmod +x /usr/bin/*
           wine ./wifi-attendance-logger.exe
           ls attendance.db
           cat post_insert_command.txt | grep "test"
@@ -147,8 +144,7 @@ jobs:
         run: |
           unzip upload/wifi-attendance-logger_windows_arm64_${VERSION}.zip
           cp test/config_test.yaml config.yaml
-          cp mockbin/* .
-          export PATH=./mockbin:$PATH
+          sudo cp mockbin/* /usr/bin/ && sudo chmod +x /usr/bin/*
           wine64 ./wifi-attendance-logger.exe
           ls attendance.db
           cat post_insert_command.txt | grep "test"
