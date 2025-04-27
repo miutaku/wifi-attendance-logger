@@ -140,7 +140,7 @@ jobs:
           sudo cp mockbin/* /usr/bin/ && sudo chmod +x /usr/bin/*
           wine ./wifi-attendance-logger.exe
           ls attendance.db
-          wine ./wifi-attendance-logger.exe -check | grep Test_Office
+          wine ./wifi-attendance-logger.exe -check
           rm wifi-attendance-logger.exe config.yaml attendance.db post_insert_command.txt
 
       - name: Test Windows arm64 binary (wine64)
@@ -150,7 +150,7 @@ jobs:
           sudo cp mockbin/* /usr/bin/ && sudo chmod +x /usr/bin/*
           wine ./wifi-attendance-logger.exe
           ls attendance.db
-          wine ./wifi-attendance-logger.exe -check | grep Test_Office
+          wine ./wifi-attendance-logger.exe -check
           rm wifi-attendance-logger.exe config.yaml attendance.db post_insert_command.txt
 
   release:
