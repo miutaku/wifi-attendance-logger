@@ -7,7 +7,7 @@
 
 ## 特徴
 
-- macOS / Windows / Linux 対応（うち、macOSでのみ動作確認済）
+- macOS / Windows / Linux 対応
 - 特定のSSIDに接続した時だけ記録
 - SQLiteで記録（ローカルファイル）
 - 同日に複数回接続しても1回だけ記録
