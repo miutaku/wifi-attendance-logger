@@ -13,6 +13,19 @@
 - 同日に複数回接続しても1回だけ記録
 - 出社時に任意のコマンドを実行可能（Slack通知など）
 
+# 動作環境
+
+|OS|arch|testまでできている環境|
+|---|---|---|
+|Windows|arm64|×|
+|Windows|x86_64|◯|
+|macOS|arm64|×|
+|macOS|x86_64|×|
+|Linux|x86_64|◯|
+|Linux|arm64|◯|
+
+# 使用方法
+
 ## セットアップ
 
 1. 適当な場所に `wifi-attendance-logger` バイナリを設置する
