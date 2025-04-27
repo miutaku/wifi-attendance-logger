@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"errors"
 	"flag"
 	"fmt"
@@ -10,8 +11,6 @@ import (
 	"runtime"
 	"strings"
 	"time"
-
-	"database/sql"
 
 	"gopkg.in/yaml.v3"
 	"gorm.io/gorm"
@@ -85,7 +84,7 @@ func getCurrentSSID() (string, error) {
 }
 
 func initDB() (*gorm.DB, error) {
-	sqlDB, err := sql.Open("sqlite", dbPath)
+	sqlDB, err := sql.Open("sqlite", dbPath) // <- modernc driver名は"sqlite"
 	if err != nil {
 		return nil, err
 	}
