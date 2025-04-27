@@ -107,6 +107,7 @@ jobs:
         run: |
           tar xzvf upload/wifi-attendance-logger_linux_amd64_${VERSION}.tgz
           chmod +x wifi-attendance-logger
+          curl -fsSL https://raw.githubusercontent.com/miutaku/wifi-attendance-logger/main/test/config.yaml -o config.yaml
           PATH=./mockbin:$PATH ./wifi-attendance-logger
           ls attendance.db
           cat post_insert_command.txt | grep "test"
@@ -116,6 +117,7 @@ jobs:
         run: |
           tar xzvf upload/wifi-attendance-logger_linux_arm64_${VERSION}.tgz
           chmod +x wifi-attendance-logger
+          curl -fsSL https://raw.githubusercontent.com/miutaku/wifi-attendance-logger/main/test/config.yaml -o config.yaml
           PATH=./mockbin:$PATH qemu-aarch64-static ./wifi-attendance-logger
           ls attendance.db
           cat post_insert_command.txt | grep "test"
@@ -124,6 +126,7 @@ jobs:
       - name: Test Windows amd64 binary (wine)
         run: |
           unzip upload/wifi-attendance-logger_windows_amd64_${VERSION}.zip
+          curl -fsSL https://raw.githubusercontent.com/miutaku/wifi-attendance-logger/main/test/config.yaml -o config.yaml
           PATH=./mockbin:$PATH wine ./wifi-attendance-logger.exe
           ls attendance.db
           cat post_insert_command.txt | grep "test"
@@ -132,6 +135,7 @@ jobs:
       - name: Test Windows arm64 binary (wine64)
         run: |
           unzip upload/wifi-attendance-logger_windows_arm64_${VERSION}.zip
+          curl -fsSL https://raw.githubusercontent.com/miutaku/wifi-attendance-logger/main/test/config.yaml -o config.yaml
           PATH=./mockbin:$PATH wine64 ./wifi-attendance-logger.exe
           ls attendance.db
           cat post_insert_command.txt | grep "test"
