@@ -78,6 +78,10 @@ jobs:
   test-amd64:
     needs: build
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        platform:
+          - linux/amd64
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -102,7 +106,7 @@ jobs:
           sudo cp mockbin/iwgetid /usr/bin/
           sudo cp mockbin/ipconfig /usr/bin/
 
-      - name: Test Linux amd64 binary
+      - name: Test Linux binary
         run: |
           tar xzvf upload/wifi-attendance-logger_linux_amd64_${VERSION}.tgz
           chmod +x wifi-attendance-logger
@@ -112,7 +116,7 @@ jobs:
           cat post_insert_command.txt | grep "test"
           ./wifi-attendance-logger -check | grep Test_Office
 
-      - name: Test Windows amd64 binary
+      - name: Test Windows binary
         run: |
           unzip -o upload/wifi-attendance-logger_windows_amd64_${VERSION}.zip
           cp test/config_test.yaml config.yaml
@@ -160,7 +164,7 @@ jobs:
           sudo cp mockbin/iwgetid /usr/bin/
           sudo cp mockbin/ipconfig /usr/bin/
 
-      - name: Test Linux arm64 binary
+      - name: Test Linux binary
         run: |
           tar xzvf upload/wifi-attendance-logger_linux_arm64_${VERSION}.tgz
           chmod +x wifi-attendance-logger
@@ -170,7 +174,7 @@ jobs:
           cat post_insert_command.txt | grep "test"
           ./wifi-attendance-logger -check | grep Test_Office
 
-      - name: Test Windows arm64 binary
+      - name: Test Windows binary
         run: |
           unzip -o upload/wifi-attendance-logger_windows_arm64_${VERSION}.zip
           cp test/config_test.yaml config.yaml
