@@ -75,7 +75,7 @@ func getCurrentSSID() (string, error) {
 		return strings.TrimSpace(string(out)), nil
 	case "darwin":
 		out, err := exec.Command("sh", "-c",
-			"system_profiler SPAirPortDataType | awk '/Current Network Information:/{getline; gsub(/^ +|:$/,\"\",$0); print $0}'",
+			"system_profiler SPAirPortDataType -json | jq -r '.SPAirPortDataType[0].spairport_airport_interfaces[] | select(._name == \"en0\").spairport_current_network_information._name'",
 		).Output()
 		if err != nil {
 			return "", err
