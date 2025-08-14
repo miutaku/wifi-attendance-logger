@@ -75,12 +75,16 @@ func getCurrentSSID() (string, error) {
 		return strings.TrimSpace(string(out)), nil
 	case "darwin":
 		out, err := exec.Command("sh", "-c",
-			"ipconfig getsummary en0 | awk -F ' SSID : ' '/ SSID : / {print $2}'",
+			"system_profiler SPAirPortDataType | awk '/Current Network Information:/{getline; gsub(/^ +|:$/,\"\",$0); print $0}'",
 		).Output()
 		if err != nil {
 			return "", err
 		}
-		return strings.TrimSpace(string(out)), nil
+		ssidLine := strings.TrimSpace(string(out))
+		if strings.HasPrefix(ssidLine, "SSID: ") {
+			return strings.TrimSpace(strings.TrimPrefix(ssidLine, "SSID: ")), nil
+		}
+		return "", fmt.Errorf("SSID not found")
 	case "windows":
 		out, err := exec.Command("netsh", "wlan", "show", "interfaces").Output()
 		if err != nil {
